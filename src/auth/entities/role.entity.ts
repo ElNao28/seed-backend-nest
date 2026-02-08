@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity({ name: 'role' })
 export class Role {
@@ -36,4 +38,7 @@ export class Role {
     name: 'delete_at',
   })
   deleteAt: Date;
+
+  @ManyToMany(() => User, (user) => user.roles)
+  users: User[];
 }

@@ -32,8 +32,9 @@ export class User {
     type: 'varchar',
     length: 255,
     name: 'second_lastname',
+    nullable: true,
   })
-  secondLastname: string;
+  secondLastname?: string;
 
   @Column({
     type: 'date',
@@ -78,7 +79,15 @@ export class User {
   })
   deleteAt: Date;
 
-  @ManyToMany(() => Role)
-  @JoinTable({ name: 'user_roles' })
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+    },
+  })
   roles: Role[];
 }
