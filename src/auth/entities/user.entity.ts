@@ -9,18 +9,22 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'user' })
 export class User {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 255,
   })
   name: string;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 255,
@@ -28,6 +32,7 @@ export class User {
   })
   lastname: string;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 255,
@@ -36,44 +41,52 @@ export class User {
   })
   secondLastname?: string;
 
+  @ApiProperty()
   @Column({
     type: 'date',
   })
   birthdate: Date;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 10,
   })
   phone: string;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 255,
   })
   email: string;
 
+  @ApiProperty()
   @Column({
     type: 'varchar',
     length: 255,
   })
   password: string;
 
+  @ApiProperty()
   @Column({
     default: true,
   })
   status: boolean;
 
+  @ApiProperty()
   @CreateDateColumn({
     name: 'create_at',
   })
   createAt: Date;
 
+  @ApiProperty()
   @UpdateDateColumn({
     name: 'update_at',
   })
   updateAt: Date;
 
+  @ApiProperty()
   @DeleteDateColumn({
     name: 'delete_at',
   })
