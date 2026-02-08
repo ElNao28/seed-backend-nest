@@ -24,17 +24,19 @@ export class User {
   @Column({
     type: 'varchar',
     length: 255,
+    name: 'lastname',
   })
-  lastName: string;
+  lastname: string;
 
   @Column({
     type: 'varchar',
     length: 255,
+    name: 'second_lastname',
   })
-  secondLastName: string;
+  secondLastname: string;
 
   @Column({
-    type: 'datetime2',
+    type: 'date',
   })
   birthdate: Date;
 
