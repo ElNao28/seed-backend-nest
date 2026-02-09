@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import database from './config/database.config';
 import jwtConf from './config/jwt.config';
+import bcryptConf from './config/bcrypt.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseConfig } from './config/interfaces/database-config.interface';
 import { AuthModule } from './auth/auth.module';
@@ -10,7 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [database, jwtConf],
+      load: [database, jwtConf, bcryptConf],
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -26,6 +27,7 @@ import { JwtModule } from '@nestjs/jwt';
           password: DB_PASSWORD,
           database: DB_NAME,
           synchronize: false,
+          autoLoadEntities: true,
         };
       },
       inject: [ConfigService],

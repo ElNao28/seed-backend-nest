@@ -51,6 +51,7 @@ export class User {
   @Column({
     type: 'varchar',
     length: 10,
+    unique: true,
   })
   phone: string;
 
@@ -58,6 +59,7 @@ export class User {
   @Column({
     type: 'varchar',
     length: 255,
+    unique: true,
   })
   email: string;
 

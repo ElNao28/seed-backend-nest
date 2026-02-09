@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsDateString,
   IsEmail,
+  IsInt,
   IsOptional,
   IsString,
   MaxLength,
@@ -40,4 +42,12 @@ export class SignUpDto {
   @IsString()
   @MinLength(8)
   password: string;
+
+  @ApiProperty()
+  @IsArray()
+  @IsInt({
+    each: true,
+  })
+  @IsOptional()
+  roles?: number[];
 }

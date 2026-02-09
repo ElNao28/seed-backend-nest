@@ -1,5 +1,6 @@
 export interface JWTConfig {
   SECRET_KEY_REFRESH_TOKEN: string;
   SECRET_KEY_ACCESS_TOKEN: string;
-  EXPIRATION_TIME: string;
+  EXPIRATION_TIME_REFRESH: string;
+  EXPIRATION_TIME_ACCESS: string;
 }
