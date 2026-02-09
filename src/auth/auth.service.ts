@@ -16,6 +16,7 @@ import { JWTConfig } from 'src/config/interfaces/jwt-config.interface';
 import { SuccessfullyLoginDto } from './dto/successfully-login.dto';
 import { BcryptConfig } from '../config/interfaces/bcrypt-config.interface';
 import { Role } from './entities/role.entity';
+import { HandlerResponse } from 'src/common/utils/handler-response';
 
 @Injectable()
 export class AuthService {
@@ -95,7 +96,9 @@ export class AuthService {
     });
 
     if (foundUser) {
-      throw new ConflictException();
+      throw new ConflictException(
+        HandlerResponse.response('Conflict', 'Duplicate data'),
+      );
     }
 
     const { ROUNDS_HASH } = this.envService.get<BcryptConfig>('bcrypt')!;
@@ -114,7 +117,7 @@ export class AuthService {
         ...restUser,
       });
       await this.userRepository.save(newUser);
-      return true;
+      return HandlerResponse.response('Usuario registrado', '', {});
     } catch (error) {
       console.log(error);
       throw new BadRequestException();
