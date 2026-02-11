@@ -9,7 +9,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { In, Or, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JWTConfig } from 'src/configuration/config/interfaces/jwt-config.interface';
@@ -17,6 +17,7 @@ import { SuccessfullyLoginDto } from './dto/successfully-login.dto';
 import { BcryptConfig } from '../configuration/config/interfaces/bcrypt-config.interface';
 import { Role } from './entities/role.entity';
 import { HandlerResponse } from 'src/common/utils/handler-response';
+import { JwtAccessPaylodDto } from './dto/jwt-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -110,7 +111,7 @@ export class AuthService {
     const { SECRET_KEY_ACCESS_TOKEN, EXPIRATION_TIME_ACCESS } =
       this.envService.get<JWTConfig>('jwt')!;
 
-    const payload = {
+    const payload: JwtAccessPaylodDto = {
       sub: user.id,
       email: user.email,
       roles: user.roles,

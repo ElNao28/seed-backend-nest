@@ -19,6 +19,7 @@ async function bootstrap() {
     jsonDocumentUrl: 'swagger/json',
   });
 
+  app.useGlobalGuards();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: false,
