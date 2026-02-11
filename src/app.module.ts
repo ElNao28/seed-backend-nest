@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import database from './config/database.config';
-import jwtConf from './config/jwt.config';
-import bcryptConf from './config/bcrypt.config';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseConfig } from './config/interfaces/database-config.interface';
+import { DatabaseConfig } from './configuration/config/interfaces/database-config.interface';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigurationModule } from './configuration/configuration.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [database, jwtConf, bcryptConf],
-      isGlobal: true,
-    }),
+    ConfigurationModule,
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigurationModule],
       useFactory: (configService: ConfigService) => {
         const { DB_NAME, DB_HOST, DB_PASSWORD, DB_PORT, DB_USER } =
           configService.get<DatabaseConfig>('database')!;

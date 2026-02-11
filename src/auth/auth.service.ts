@@ -12,9 +12,9 @@ import { User } from './entities/user.entity';
 import { In, Or, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JWTConfig } from 'src/config/interfaces/jwt-config.interface';
+import { JWTConfig } from 'src/configuration/config/interfaces/jwt-config.interface';
 import { SuccessfullyLoginDto } from './dto/successfully-login.dto';
-import { BcryptConfig } from '../config/interfaces/bcrypt-config.interface';
+import { BcryptConfig } from '../configuration/config/interfaces/bcrypt-config.interface';
 import { Role } from './entities/role.entity';
 import { HandlerResponse } from 'src/common/utils/handler-response';
 
@@ -55,40 +55,6 @@ export class AuthService {
     };
   }
 
-  public generateRefreshToken(user: User): string {
-    const { EXPIRATION_TIME_REFRESH, SECRET_KEY_REFRESH_TOKEN } =
-      this.envService.get<JWTConfig>('jwt')!;
-
-    const payload = {
-      sub: user.id,
-    };
-
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: SECRET_KEY_REFRESH_TOKEN,
-      expiresIn: EXPIRATION_TIME_REFRESH as any,
-    });
-
-    return refreshToken;
-  }
-
-  public generateAccessToken(user: User): string {
-    const { SECRET_KEY_ACCESS_TOKEN, EXPIRATION_TIME_ACCESS } =
-      this.envService.get<JWTConfig>('jwt')!;
-
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      roles: user.roles,
-    };
-
-    const accessToken = this.jwtService.sign(payload, {
-      secret: SECRET_KEY_ACCESS_TOKEN,
-      expiresIn: EXPIRATION_TIME_ACCESS as any,
-    });
-
-    return accessToken;
-  }
-
   public async signUp(signUpDto: SignUpDto) {
     const { email, phone, password, roles: idsRoles, ...restUser } = signUpDto;
     const foundUser = await this.userRepository.findOne({
@@ -122,5 +88,39 @@ export class AuthService {
       console.log(error);
       throw new BadRequestException();
     }
+  }
+
+  public generateRefreshToken(user: User): string {
+    const { EXPIRATION_TIME_REFRESH, SECRET_KEY_REFRESH_TOKEN } =
+      this.envService.get<JWTConfig>('jwt')!;
+
+    const payload = {
+      sub: user.id,
+    };
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: SECRET_KEY_REFRESH_TOKEN,
+      expiresIn: EXPIRATION_TIME_REFRESH as any,
+    });
+
+    return refreshToken;
+  }
+
+  public generateAccessToken(user: User): string {
+    const { SECRET_KEY_ACCESS_TOKEN, EXPIRATION_TIME_ACCESS } =
+      this.envService.get<JWTConfig>('jwt')!;
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      secret: SECRET_KEY_ACCESS_TOKEN,
+      expiresIn: EXPIRATION_TIME_ACCESS as any,
+    });
+
+    return accessToken;
   }
 }

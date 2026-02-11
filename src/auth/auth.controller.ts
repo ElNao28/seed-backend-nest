@@ -5,6 +5,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { SignInDto } from './dto/sign-in.dto';
 import { SuccessfullyLoginDto } from './dto/successfully-login.dto';

@@ -10,12 +10,13 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Seed Documentation')
     .setDescription('Seed API description')
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, documentFactory,{
-    jsonDocumentUrl: 'swagger/json'
+  SwaggerModule.setup('swagger', app, documentFactory, {
+    jsonDocumentUrl: 'swagger/json',
   });
 
   app.useGlobalPipes(
