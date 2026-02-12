@@ -1,5 +1,6 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthorizationGuard } from '../guards/authorization.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 export const KEY_AUTHORIZATION = 'roles_key';
 export enum ROLES {
@@ -10,6 +11,7 @@ export enum ROLES {
 
 export const Authorization = (...roles: ROLES[]) =>
   applyDecorators(
+    ApiBearerAuth(),
     SetMetadata(KEY_AUTHORIZATION, roles),
     UseGuards(AuthorizationGuard),
   );
