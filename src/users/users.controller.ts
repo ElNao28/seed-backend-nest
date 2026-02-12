@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -6,9 +14,10 @@ import {
   ROLES,
 } from 'src/auth/decorators/authorization.decorator';
 import { UserId } from './decorators/user-id.decorator';
-import { ApiOkResponse } from '@nestjs/swagger';
-import { PaginationDto } from 'src/common/dto/pagination-dto';
-import { User } from 'src/auth/entities/user.entity';
+import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
+import { User } from '../auth/entities/user.entity';
+import { PaginationDto } from '../common/dto/pagination-dto';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -36,5 +45,31 @@ export class UsersController {
   @Get()
   public getAllUser(@Query() paginationDto: PaginationDto) {
     return this.usersService.getAllUser(paginationDto);
+  }
+
+  @ApiOkResponse({
+    description: 'Found user',
+    type: User,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+  })
+  @Authorization()
+  @Get('me')
+  public getUserByToken(@UserId() userId: string) {
+    return this.usersService.getUserById(userId);
+  }
+
+  @ApiOkResponse({
+    description: 'Found user',
+    type: User,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+  })
+  @Authorization()
+  @Get(':id')
+  public getUserById(@Param('id', ParseUUIDPipe) userId: string) {
+    return this.usersService.getUserById(userId);
   }
 }

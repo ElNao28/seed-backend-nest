@@ -46,4 +46,14 @@ export class UsersService {
       handleDatabaseErrors(error);
     }
   }
+
+  public async getUserById(userId: string) {
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId,
+      status: true,
+    });
+    if (!foundUser) throw new NotFoundException('User not found');
+
+    return foundUser;
+  }
 }
