@@ -11,5 +11,6 @@ import { RefreshToken } from './entities/refreshToken.entity';
   imports: [TypeOrmModule.forFeature([User, Role, RefreshToken])],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
+  exports: [TypeOrmModule],
 })
 export class AuthModule {}

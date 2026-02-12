@@ -22,6 +22,7 @@ import { JwtAccessPaylodDto } from './dto/jwt-payload.dto';
 import { GenerateAccessToken } from './dto/generate-access-token.dto';
 import { RefreshToken } from './entities/refreshToken.entity';
 import { RevokeRefreshTokenDto } from './dto/revoke-refresh-token.dto';
+import { handleDatabaseErrors } from 'src/common/helpers/handler-db-error.helper';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,9 @@ export class AuthService {
       },
       relations: ['roles'],
       select: {
+        id: true,
+        password: true,
+        email: true,
         roles: {
           name: true,
           id: true,
@@ -93,8 +97,7 @@ export class AuthService {
       });
       return await this.userRepository.save(newUser);
     } catch (error) {
-      console.log(error);
-      throw new BadRequestException();
+      handleDatabaseErrors(error);
     }
   }
 
@@ -110,7 +113,7 @@ export class AuthService {
         secret: SECRET_KEY_REFRESH_TOKEN,
       });
     } catch (error) {
-      throw new UnauthorizedException();
+      handleDatabaseErrors(error);
     }
 
     const tokens = await this.refreshTokenRepository.find({
@@ -196,7 +199,7 @@ export class AuthService {
 
       await this.refreshTokenRepository.save(newRefreshToken);
     } catch (error) {
-      throw new ConflictException();
+      handleDatabaseErrors(error);
     }
   }
 
