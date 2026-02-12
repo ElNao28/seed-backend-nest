@@ -1,16 +1,20 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { SignUpDto } from './dto/sign-up.dto';
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { SuccessfullyLoginDto } from './dto/sign-in-response.dto';
 import { GenerateAccessTokenResponseDto } from './dto/generate-access-token-response.dto';
 import { GenerateAccessToken } from './dto/generate-access-token.dto';
+import { Authorization, ROLES } from './decorators/authorization.decorator';
+import { Authentication } from './decorators/authentication.decorator';
+import { RevokeRefreshTokenDto } from './dto/revoke-refresh-token.dto';
+import { RevokedTokenResponseDto } from './dto/revoked-token-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -40,8 +44,24 @@ export class AuthController {
     description: 'Access token generated',
     type: GenerateAccessTokenResponseDto,
   })
-  @Post('refresh')
-  public generateAccessToken(@Body() refressTokenDto: GenerateAccessToken) {
-    return this.authService.generateRefressTokenByAccess(refressTokenDto);
+  @Post('generate-access-token')
+  public generateAccessToken(@Body() generateAccessToken: GenerateAccessToken) {
+    return this.authService.generateRefressTokenByAccess(generateAccessToken);
+  }
+
+  @ApiOkResponse({
+    description: 'Token is revoked',
+    type: RevokedTokenResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Not found exception',
+  })
+  @Authorization(ROLES.SuperAdmin)
+  @Authentication()
+  @Post('revoke-refresh-token')
+  public revokeAccessToken(
+    @Body() revokeRefreshTokenDto: RevokeRefreshTokenDto,
+  ) {
+    return this.authService.revokeRefreshToken(revokeRefreshTokenDto);
   }
 }

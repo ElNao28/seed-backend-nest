@@ -5,11 +5,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { RefreshToken } from './refreshToken.entity';
 
 @Entity({ name: 'user' })
 export class User {
@@ -82,9 +83,6 @@ export class User {
   })
   deleteAt: Date;
 
-  @ApiProperty({
-    type: Role,
-  })
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',
@@ -96,4 +94,7 @@ export class User {
     },
   })
   roles: Role[];
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshsTokens: RefreshToken[];
 }

@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -18,12 +20,16 @@ import { BcryptConfig } from '../configuration/config/interfaces/bcrypt-config.i
 import { Role } from './entities/role.entity';
 import { JwtAccessPaylodDto } from './dto/jwt-payload.dto';
 import { GenerateAccessToken } from './dto/generate-access-token.dto';
+import { RefreshToken } from './entities/refreshToken.entity';
+import { RevokeRefreshTokenDto } from './dto/revoke-refresh-token.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
     private readonly envService: ConfigService,
   ) {}
@@ -50,10 +56,14 @@ export class AuthService {
 
     if (!valid) throw new UnauthorizedException();
 
-    return {
+    const payload = {
       accessToken: this.generateAccessToken(foundUser),
       refreshToken: this.generateRefreshToken(foundUser),
     };
+
+    await this.saveRefreshToken(payload.refreshToken, foundUser);
+
+    return payload;
   }
 
   public async signUp(signUpDto: SignUpDto) {
@@ -101,6 +111,19 @@ export class AuthService {
       });
     } catch (error) {
       throw new UnauthorizedException();
+    }
+
+    const tokens = await this.refreshTokenRepository.find({
+      where: {
+        user: {
+          id: jwtData.sub,
+        },
+      },
+    });
+
+    for (const token of tokens) {
+      const isMatch = await bcrypt.compare(refreshToken, token.tokenHash);
+      if (isMatch && token.revoked) throw new UnauthorizedException();
     }
 
     const userFound = await this.userRepository.findOne({
@@ -157,5 +180,50 @@ export class AuthService {
     });
 
     return accessToken;
+  }
+
+  public async saveRefreshToken(token: string, user: User) {
+    try {
+      const { ROUNDS_TOKEN_HASH } =
+        this.envService.get<BcryptConfig>('bcrypt')!;
+
+      const tokenHash = bcrypt.hashSync(token, +ROUNDS_TOKEN_HASH);
+
+      const newRefreshToken = this.refreshTokenRepository.create({
+        tokenHash,
+        user,
+      });
+
+      await this.refreshTokenRepository.save(newRefreshToken);
+    } catch (error) {
+      throw new ConflictException();
+    }
+  }
+
+  public async revokeRefreshToken(
+    revokeRefreshTokenDto: RevokeRefreshTokenDto,
+  ) {
+    const { oldToken, userId } = revokeRefreshTokenDto;
+    const tokens = await this.refreshTokenRepository.find({
+      where: {
+        revoked: false,
+        user: {
+          id: userId,
+        },
+      },
+    });
+
+    if (tokens.length === 0) throw new NotFoundException();
+
+    for (const token of tokens) {
+      const isHash = await bcrypt.compare(oldToken, token.tokenHash);
+      if (isHash) {
+        this.refreshTokenRepository.update(token.id, { revoked: true });
+        return {
+          message: 'Token is revoked',
+          status: HttpStatus.OK,
+        };
+      }
+    }
   }
 }
