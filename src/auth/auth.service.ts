@@ -13,11 +13,11 @@ import { In, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JWTConfig } from 'src/configuration/config/interfaces/jwt-config.interface';
-import { SuccessfullyLoginDto } from './dto/successfully-login.dto';
+import { SuccessfullyLoginDto } from './dto/sign-in-response.dto';
 import { BcryptConfig } from '../configuration/config/interfaces/bcrypt-config.interface';
 import { Role } from './entities/role.entity';
-import { HandlerResponse } from 'src/common/utils/handler-response';
 import { JwtAccessPaylodDto } from './dto/jwt-payload.dto';
+import { GenerateAccessToken } from './dto/generate-access-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,9 +63,7 @@ export class AuthService {
     });
 
     if (foundUser) {
-      throw new ConflictException(
-        HandlerResponse.response('Conflict', 'Duplicate data'),
-      );
+      throw new ConflictException();
     }
 
     const { ROUNDS_HASH } = this.envService.get<BcryptConfig>('bcrypt')!;
@@ -83,12 +81,48 @@ export class AuthService {
         roles,
         ...restUser,
       });
-      await this.userRepository.save(newUser);
-      return HandlerResponse.response('Usuario registrado', '', {});
+      return await this.userRepository.save(newUser);
     } catch (error) {
       console.log(error);
       throw new BadRequestException();
     }
+  }
+
+  public async generateRefressTokenByAccess(
+    generateAccessToken: GenerateAccessToken,
+  ) {
+    const { refreshToken } = generateAccessToken;
+    const { SECRET_KEY_REFRESH_TOKEN } = this.envService.get<JWTConfig>('jwt')!;
+    let jwtData;
+
+    try {
+      jwtData = await this.jwtService.verify(refreshToken, {
+        secret: SECRET_KEY_REFRESH_TOKEN,
+      });
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+
+    const userFound = await this.userRepository.findOne({
+      where: {
+        id: jwtData.sub,
+      },
+      relations: ['roles'],
+      select: {
+        roles: {
+          name: true,
+          id: true,
+        },
+      },
+    });
+
+    if (!userFound) throw new UnauthorizedException();
+
+    const accessToken = this.generateAccessToken(userFound);
+
+    return {
+      accessToken,
+    };
   }
 
   public generateRefreshToken(user: User): string {

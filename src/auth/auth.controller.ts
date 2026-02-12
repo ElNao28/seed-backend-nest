@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import {
@@ -8,9 +8,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { SignInDto } from './dto/sign-in.dto';
-import { SuccessfullyLoginDto } from './dto/successfully-login.dto';
-import { SignUpSuccessDto } from './dto/sign-up-success.dto';
-import { BaseResponse } from 'src/common/utils/base-response';
+import { SuccessfullyLoginDto } from './dto/sign-in-response.dto';
+import { GenerateAccessTokenResponseDto } from './dto/generate-access-token-response.dto';
+import { GenerateAccessToken } from './dto/generate-access-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,12 +28,20 @@ export class AuthController {
   @Post('sign-up')
   @ApiCreatedResponse({
     description: 'User created',
-    type: SignUpSuccessDto,
   })
   @ApiConflictResponse({
-    type: BaseResponse,
+    description: 'Conflict',
   })
   public signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
+  }
+
+  @ApiOkResponse({
+    description: 'Access token generated',
+    type: GenerateAccessTokenResponseDto,
+  })
+  @Post('refresh')
+  public generateAccessToken(@Body() refressTokenDto: GenerateAccessToken) {
+    return this.authService.generateRefressTokenByAccess(refressTokenDto);
   }
 }
