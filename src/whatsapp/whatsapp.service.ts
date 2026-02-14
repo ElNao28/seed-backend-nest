@@ -12,6 +12,8 @@ export class WhatsappService implements OnModuleInit {
   constructor(private readonly eventEmitter: EventEmitter2) {}
 
   onModuleInit() {
+    console.log('Uncomment to enable whabot');
+    /*
     this.client.on('qr', (qr) => {
       this.eventEmitter.emit('order.created', qr);
     });
@@ -26,6 +28,7 @@ export class WhatsappService implements OnModuleInit {
     });
 
     this.client.initialize();
+    */
   }
 
   public async generateWhatsappQr(code: string, response: Response) {
