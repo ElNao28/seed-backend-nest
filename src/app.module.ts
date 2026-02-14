@@ -10,10 +10,13 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { UsersModule } from './users/users.module';
 import { EmailModule } from './email/email.module';
 import { UploadFilesModule } from './upload-files/upload-files.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ConfigurationModule,
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigurationModule],
       useFactory: (configService: ConfigService) => {
@@ -39,6 +42,7 @@ import { UploadFilesModule } from './upload-files/upload-files.module';
     UsersModule,
     EmailModule,
     UploadFilesModule,
+    WhatsappModule,
   ],
   controllers: [],
   providers: [
