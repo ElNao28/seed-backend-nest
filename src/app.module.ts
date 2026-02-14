@@ -12,6 +12,7 @@ import { EmailModule } from './email/email.module';
 import { UploadFilesModule } from './upload-files/upload-files.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EmailModule,
     UploadFilesModule,
     WhatsappModule,
+    SmsModule,
   ],
   controllers: [],
   providers: [
